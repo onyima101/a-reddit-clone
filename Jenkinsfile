@@ -27,7 +27,7 @@ pipeline {
         }
         stage("Sonarqube Analysis") {
             steps {
-                withSonarQubeEnv('SonarQube-Server') {
+                withSonarQubeEnv('Sonarqube-Server') {
                     sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=ndcc-project-2 \
                     -Dsonar.projectKey=ndcc-project-2'''
                 }
