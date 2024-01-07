@@ -54,13 +54,12 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry('https://registry.hub.docker.com', DOCKER_PASS) {
-                        app.push("${env.BUILD_NUMBER}")
-                        //docker_image = docker.build "${IMAGE_NAME}"
+                        docker_image = docker.build "${IMAGE_NAME}"
                     }
-                    // docker.withRegistry('',DOCKER_PASS) {
-                    //     docker_image.push("${IMAGE_TAG}")
+                    docker.withRegistry('https://registry.hub.docker.com', DOCKER_PASS) {
+                        docker_image.push("${IMAGE_TAG}")
                     //     docker_image.push('latest')
-                    // }
+                    }
                 }
             }
         }
@@ -75,7 +74,7 @@ pipeline {
             steps {
                 script {
                     sh "docker rmi ${IMAGE_NAME}:${IMAGE_TAG}"
-                    sh "docker rmi ${IMAGE_NAME}:latest"
+                    //sh "docker rmi ${IMAGE_NAME}:latest"
                 }
             }
         }
@@ -91,16 +90,16 @@ pipeline {
         //     }
         // }
     }
-    post {
-        always {
-           emailext attachLog: true,
-               subject: "'${currentBuild.result}'",
-               body: "Project: ${env.JOB_NAME}<br/>" +
-                   "Build Number: ${env.BUILD_NUMBER}<br/>" +
-                   "URL: ${env.BUILD_URL}<br/>",
-               to: 'nd.onyima@gmail.com',                              
-               attachmentsPattern: 'trivyfs.txt,trivyimage.txt'
-        }
-    }
+    // post {
+    //     always {
+    //        emailext attachLog: true,
+    //            subject: "'${currentBuild.result}'",
+    //            body: "Project: ${env.JOB_NAME}<br/>" +
+    //                "Build Number: ${env.BUILD_NUMBER}<br/>" +
+    //                "URL: ${env.BUILD_URL}<br/>",
+    //            to: 'nd.onyima@gmail.com',                              
+    //            attachmentsPattern: 'trivyfs.txt,trivyimage.txt'
+    //     }
+    // }
     
 }
