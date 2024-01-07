@@ -58,7 +58,7 @@ pipeline {
                     }
                     docker.withRegistry('https://registry.hub.docker.com', DOCKER_PASS) {
                         docker_image.push("${IMAGE_TAG}")
-                    //     docker_image.push('latest')
+                        docker_image.push('latest')
                     }
                 }
             }
@@ -74,7 +74,7 @@ pipeline {
             steps {
                 script {
                     sh "docker rmi ${IMAGE_NAME}:${IMAGE_TAG}"
-                    //sh "docker rmi ${IMAGE_NAME}:latest"
+                    sh "docker rmi ${IMAGE_NAME}:latest"
                 }
             }
         }
