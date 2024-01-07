@@ -78,10 +78,10 @@ pipeline {
                 }
             }
         }
-        stage('Trigger Reddit-Clone-CD') {
-            echo "triggering Reddit-Clone-CD"
-            build job: 'Reddit-Clone-CD', parameters: [string(name: 'IMAGE_TAG', value: env.BUILD_NUMBER)]
-        }
+        // stage('Trigger Reddit-Clone-CD') {
+        //     echo "triggering Reddit-Clone-CD"
+        //     build job: 'Reddit-Clone-CD', parameters: [string(name: 'IMAGE_TAG', value: env.BUILD_NUMBER)]
+        // }
 	    // stage("Trigger CD Pipeline") {
         //     steps {
         //         script {
