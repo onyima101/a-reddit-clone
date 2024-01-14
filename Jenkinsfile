@@ -11,8 +11,8 @@ pipeline {
         DOCKER_USER = "onyima101"
         DOCKER_PASS = 'dockerhub'
         IMAGE_NAME = "${DOCKER_USER}" + "/" + "${APP_NAME}"
-        // IMAGE_TAG = "${env.BUILD_NUMBER}"
-        IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
+        IMAGE_TAG = "${env.BUILD_NUMBER}"
+        // IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
 	    // JENKINS_API_TOKEN = credentials("JENKINS_API_TOKEN")
     }
     stages {
@@ -58,9 +58,9 @@ pipeline {
                         docker_image = docker.build "${IMAGE_NAME}"
                     }
                     docker.withRegistry('', DOCKER_PASS) {
-                        // docker_image.push("${env.BUILD_NUMBER}")
+                        docker_image.push("${env.BUILD_NUMBER}")
                         docker_image.push("${IMAGE_TAG}")
-                        docker_image.push('latest')
+                        // docker_image.push('latest')
                     }
                 }
             }
@@ -102,7 +102,7 @@ pipeline {
 	    // stage("Trigger CD Pipeline") {
         //     steps {
         //         script {
-        //             sh "curl -v -k --user jenkins:${JENKINS_API_TOKEN} -X POST -H 'cache-control: no-cache' -H 'content-type: application/x-www-form-urlencoded' --data 'IMAGE_TAG=${IMAGE_TAG}' 'ec2-54-161-100-251.compute-1.amazonaws.com:8080/job/Reddit-Clone-CD/buildWithParameters?token=gitops-token'"
+        //             sh "curl -v -k --user admin:${JENKINS_API_TOKEN} -X POST -H 'cache-control: no-cache' -H 'content-type: application/x-www-form-urlencoded' --data 'IMAGE_TAG=${IMAGE_TAG}' 'ec2-54-161-100-251.compute-1.amazonaws.com:8080/job/Reddit-Clone-CD/buildWithParameters?token=gitops-token'"
         //         }
         //     }
         // }
