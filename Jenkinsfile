@@ -11,9 +11,8 @@ pipeline {
         DOCKER_USER = "onyima101"
         DOCKER_PASS = 'dockerhub'
         IMAGE_NAME = "${DOCKER_USER}" + "/" + "${APP_NAME}"
-        IMAGE_TAG = "${env.BUILD_NUMBER}"
-        // IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
-	    // JENKINS_API_TOKEN = credentials("JENKINS_API_TOKEN")
+        IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
+	    JENKINS_API_TOKEN = credentials("JENKINS_API_TOKEN")
     }
     stages {
         stage('clean workspace') {
@@ -58,25 +57,12 @@ pipeline {
                         docker_image = docker.build "${IMAGE_NAME}"
                     }
                     docker.withRegistry('', DOCKER_PASS) {
-                        docker_image.push("${env.BUILD_NUMBER}")
                         docker_image.push("${IMAGE_TAG}")
-                        // docker_image.push('latest')
+                        docker_image.push('latest')
                     }
                 }
             }
         }
-        // stage('Build image') {
-        //     steps {
-        //        app = docker.build("onyima101/reddit-clone-pipeline") 
-        //     }
-        // }
-        // stage('Push image'){
-        //     steps {
-        //         docker.withRegistry('https://registry.hub.docker.com', 'dockerhub'){
-        //             app.push("${env.BUILD_NUMBER}")
-        //         }
-        //     }
-        // }
         stage("Trivy Image Scan") {
             steps {
                 script {
@@ -91,32 +77,25 @@ pipeline {
                     sh "docker rmi ${IMAGE_NAME}:latest"
                 }
             }
-        }
-        stage('Trigger ndcc-project-2-CD') {
+        }  
+	    stage("Trigger CD Pipeline") {
             steps {
-                echo "triggering ndcc-project-2-CD"
-                build job: 'ndcc-project-2-CD', parameters: [string(name: 'IMAGE_TAG', value: env.BUILD_NUMBER)]
-                //build job: 'ndcc-project-2-CD', parameters: [string(name: 'DOCKERTAG', value: env.BUILD_NUMBER)]
+                script {
+                    sh "curl -v -k --user admin:${JENKINS_API_TOKEN} -X POST -H 'cache-control: no-cache' -H 'content-type: application/x-www-form-urlencoded' --data 'IMAGE_TAG=${IMAGE_TAG}' 'ec2-50-16-152-154.compute-1.amazonaws.com:8080/job/ndcc-project-2-CD/buildWithParameters?token=gitops-token'"
+                }
             }
-        }    
-	    // stage("Trigger CD Pipeline") {
-        //     steps {
-        //         script {
-        //             sh "curl -v -k --user admin:${JENKINS_API_TOKEN} -X POST -H 'cache-control: no-cache' -H 'content-type: application/x-www-form-urlencoded' --data 'IMAGE_TAG=${IMAGE_TAG}' 'ec2-54-161-100-251.compute-1.amazonaws.com:8080/job/Reddit-Clone-CD/buildWithParameters?token=gitops-token'"
-        //         }
-        //     }
-        // }
+        }
     }
-    // post {
-    //     always {
-    //        emailext attachLog: true,
-    //            subject: "'${currentBuild.result}'",
-    //            body: "Project: ${env.JOB_NAME}<br/>" +
-    //                "Build Number: ${env.BUILD_NUMBER}<br/>" +
-    //                "URL: ${env.BUILD_URL}<br/>",
-    //            to: 'nd.onyima@gmail.com',                              
-    //            attachmentsPattern: 'trivyfs.txt,trivyimage.txt'
-    //     }
-    // }
+    post {
+        always {
+           emailext attachLog: true,
+               subject: "'${currentBuild.result}'",
+               body: "Project: ${env.JOB_NAME}<br/>" +
+                   "Build Number: ${env.BUILD_NUMBER}<br/>" +
+                   "URL: ${env.BUILD_URL}<br/>",
+               to: 'nd.onyima@gmail.com',                              
+               attachmentsPattern: 'trivyfs.txt,trivyimage.txt'
+        }
+    }
     
 }
