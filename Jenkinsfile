@@ -11,9 +11,9 @@ pipeline {
         DOCKER_USER = "onyima101"
         DOCKER_PASS = 'dockerhub'
         IMAGE_NAME = "${DOCKER_USER}" + "/" + "${APP_NAME}"
-        IMAGE_TAG = "${env.BUILD_NUMBER}"
-        // IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
-	    JENKINS_API_TOKEN = credentials("JENKINS_API_TOKEN")
+        // IMAGE_TAG = "${env.BUILD_NUMBER}"
+        IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
+	    // JENKINS_API_TOKEN = credentials("JENKINS_API_TOKEN")
     }
     stages {
         stage('clean workspace') {
@@ -58,9 +58,9 @@ pipeline {
                         docker_image = docker.build "${IMAGE_NAME}"
                     }
                     docker.withRegistry('', DOCKER_PASS) {
-                        docker_image.push("${env.BUILD_NUMBER}")
-                        // docker_image.push("${IMAGE_TAG}")
-                        // docker_image.push('latest')
+                        // docker_image.push("${env.BUILD_NUMBER}")
+                        docker_image.push("${IMAGE_TAG}")
+                        docker_image.push('latest')
                     }
                 }
             }
@@ -88,14 +88,15 @@ pipeline {
             steps {
                 script {
                     sh "docker rmi ${IMAGE_NAME}:${IMAGE_TAG}"
-                    // sh "docker rmi ${IMAGE_NAME}:latest"
+                    sh "docker rmi ${IMAGE_NAME}:latest"
                 }
             }
         }
         stage('Trigger ndcc-project-2-CD') {
             steps {
                 echo "triggering ndcc-project-2-CD"
-                build job: 'ndcc-project-2-CD', parameters: [string(name: 'DOCKERTAG', value: env.BUILD_NUMBER)]
+                build job: 'ndcc-project-2-CD', parameters: [string(name: 'IMAGE_TAG', value: env.BUILD_NUMBER)]
+                //build job: 'ndcc-project-2-CD', parameters: [string(name: 'DOCKERTAG', value: env.BUILD_NUMBER)]
             }
         }    
 	    // stage("Trigger CD Pipeline") {
