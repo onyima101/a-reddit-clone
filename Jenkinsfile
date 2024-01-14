@@ -11,7 +11,8 @@ pipeline {
         DOCKER_USER = "onyima101"
         DOCKER_PASS = 'dockerhub'
         IMAGE_NAME = "${DOCKER_USER}" + "/" + "${APP_NAME}"
-        IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
+        IMAGE_TAG = "${env.BUILD_NUMBER}"
+        // IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
 	    JENKINS_API_TOKEN = credentials("JENKINS_API_TOKEN")
     }
     stages {
@@ -49,7 +50,7 @@ pipeline {
             steps {
                 sh "trivy fs . > trivyfs.txt"
              }
-         }
+        }
         stage("Build & Push Docker Image") {
             steps {
                 script {
@@ -57,12 +58,25 @@ pipeline {
                         docker_image = docker.build "${IMAGE_NAME}"
                     }
                     docker.withRegistry('', DOCKER_PASS) {
-                        docker_image.push("${IMAGE_TAG}")
-                        docker_image.push('latest')
+                        docker_image.push("${env.BUILD_NUMBER}")
+                        // docker_image.push("${IMAGE_TAG}")
+                        // docker_image.push('latest')
                     }
                 }
             }
         }
+        // stage('Build image') {
+        //     steps {
+        //        app = docker.build("onyima101/reddit-clone-pipeline") 
+        //     }
+        // }
+        // stage('Push image'){
+        //     steps {
+        //         docker.withRegistry('https://registry.hub.docker.com', 'dockerhub'){
+        //             app.push("${env.BUILD_NUMBER}")
+        //         }
+        //     }
+        // }
         stage("Trivy Image Scan") {
             steps {
                 script {
@@ -74,14 +88,14 @@ pipeline {
             steps {
                 script {
                     sh "docker rmi ${IMAGE_NAME}:${IMAGE_TAG}"
-                    sh "docker rmi ${IMAGE_NAME}:latest"
+                    // sh "docker rmi ${IMAGE_NAME}:latest"
                 }
             }
         }
-        // stage('Trigger Reddit-Clone-CD') {
-        //     echo "triggering Reddit-Clone-CD"
-        //     build job: 'Reddit-Clone-CD', parameters: [string(name: 'IMAGE_TAG', value: env.BUILD_NUMBER)]
-        // }
+        stage('Trigger ndcc-project-2-CD') {
+            echo "triggering ndcc-project-2-CD"
+            build job: 'ndcc-project-2-CD', parameters: [string(name: 'DOCKERTAG', value: env.BUILD_NUMBER)]
+        }
 	    // stage("Trigger CD Pipeline") {
         //     steps {
         //         script {
