@@ -93,9 +93,11 @@ pipeline {
             }
         }
         stage('Trigger ndcc-project-2-CD') {
-            echo "triggering ndcc-project-2-CD"
-            build job: 'ndcc-project-2-CD', parameters: [string(name: 'DOCKERTAG', value: env.BUILD_NUMBER)]
-        }
+            steps {
+                echo "triggering ndcc-project-2-CD"
+                build job: 'ndcc-project-2-CD', parameters: [string(name: 'DOCKERTAG', value: env.BUILD_NUMBER)]
+            }
+        }    
 	    // stage("Trigger CD Pipeline") {
         //     steps {
         //         script {
